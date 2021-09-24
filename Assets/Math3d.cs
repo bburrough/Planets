@@ -1,11 +1,10 @@
 ﻿/* This was originally taken from: https://wiki.unity3d.com/index.php/3d_Math_functions
 
    New code has been added to both their version of the file and ours. No attempt
-   has been made to merge or resolve conflicts between them.  If I (Bob Burrough)
-   understand the Unity3D Wiki correctly, then this code was provided to us under
-   CC BY-SA 3.0. We therefore acknowledge the original author as Bit Barrel Media
-   and submit our changes back to the community under CC BY-SA 3.0, attributable
-   to Blit It, Inc.
+   has been made to merge or resolve conflicts between them.  Therefore, this code
+   was provided to us under CC BY-SA 3.0. We therefore acknowledge the original
+   author as Bit Barrel Media and submit our changes back to the community under
+   CC BY-SA 3.0, attributable to Blit It, Inc.
 
    https://creativecommons.org/licenses/by-sa/3.0/
 */
