@@ -1,0 +1,96 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class OrbitalMechanics : MonoBehaviour
+{
+    public GameObject sun;
+    public GameObject earth;
+    public GameObject comet;
+    private float earthOrbitalRadius;
+    private float cometPeriapsis = 1f;
+    private float earthTimeElapsed = 0f;
+    private float cometTimeElapsed = 0f;
+    private const float interval = 1f / 40f;
+    private Vector3 previousCometPosition;
+    private bool previousCometPositionIsSet = false;
+    private Vector3 previousEarthPosition;
+    private bool previousEarthPositionIsSet = false;
+    private float previousTrueAnomaly = 0f;
+
+
+    void Start()
+    {
+        earthOrbitalRadius = (sun.transform.position - earth.transform.position).magnitude;
+    }
+  
+
+    void Update()
+    {
+        float earthAngleDegrees = (Time.time * 40f) % 360f;
+        float cometAngleDegrees = (Time.time * 4f) % 360f;
+
+        //earth.transform.position = new Vector3(Mathf.Sin(earthAngleDegrees * Mathf.Deg2Rad) * earthOrbitalRadius, 0f, Mathf.Cos(earthAngleDegrees * Mathf.Deg2Rad) * earthOrbitalRadius);
+
+        float earthEccentricity = 0f;
+        float earthSemiMajorAxis = 149.6f;
+        float cometEccentricity = 0.5f;
+        float cometSemiMajorAxis = earthSemiMajorAxis * 3f;
+        float argumentOfPeriapsis = 0f;
+        float inclination = 0f;
+        float longitudeOfAscendingNode = 0f;
+
+        float eccentricAnomaly = OrbitalBody.EccentricAnomalyGivenMeanAnomaly(earthAngleDegrees * -1f, earthEccentricity);
+        earth.transform.position = OrbitalBody.KeplerianPosition2D(eccentricAnomaly, earthSemiMajorAxis, earthEccentricity, argumentOfPeriapsis, inclination, longitudeOfAscendingNode);
+
+        eccentricAnomaly = OrbitalBody.EccentricAnomalyGivenMeanAnomaly(cometAngleDegrees * -1f, cometEccentricity);
+        comet.transform.position = OrbitalBody.KeplerianPosition2D(eccentricAnomaly, cometSemiMajorAxis, cometEccentricity, argumentOfPeriapsis, inclination, longitudeOfAscendingNode);
+
+        //float trueAnomaly = OrbitalBody.TrueAnomalyGivenEccentricAnomaly(eccentricAnomaly);
+
+        //Debug.Log("clk: " + (earthAngleDegrees % 360f) + " ecc: " + eccentricAnomaly + " tru: " + trueAnomaly);
+
+        //Debug.Log("delta M: " + (trueAnomaly - previousTrueAnomaly));
+        //previousTrueAnomaly = trueAnomaly;
+
+        // alt calculation
+        //Vector3 newPosition = Quaternion.Euler(0f, trueAnomaly, 0f) * Vector3.forward * OrbitalBody.RadiusGivenEccentricAnomaly(eccentricAnomaly);
+        //comet.transform.position = newPosition;
+
+        //comet.transform.position = KeplerianPosition2D(eccentricAnomaly);
+
+        //OrbitalVelocityGivenEccentricAnomaly(eccentricAnomaly);
+
+        if (!previousEarthPositionIsSet)
+        {
+            previousEarthPosition = earth.transform.position;
+            previousEarthPositionIsSet = true;
+        }
+        else
+        {
+            earthTimeElapsed += Time.deltaTime;
+            if (earthTimeElapsed > interval)
+            {
+                Debug.DrawLine(earth.transform.position, previousEarthPosition, Color.blue, interval*4f);
+                previousEarthPosition = earth.transform.position;
+                earthTimeElapsed = 0f;
+            }
+        }
+
+        if (!previousCometPositionIsSet)
+        {
+            previousCometPosition = comet.transform.position;
+            previousCometPositionIsSet = true;
+        }
+        else
+        {
+            cometTimeElapsed += Time.deltaTime;
+            if (cometTimeElapsed > interval)
+            {
+                Debug.DrawLine(comet.transform.position, previousCometPosition, Color.white, interval*4f);
+                previousCometPosition = comet.transform.position;
+                cometTimeElapsed = 0f;
+            }
+        }
+    }
+}
