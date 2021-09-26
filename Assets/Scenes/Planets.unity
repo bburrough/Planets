@@ -160,9 +160,12 @@ MonoBehaviour:
   longitudeOfAscendingNode: 113.71504
   orbitalPeriod: 147.2859
   meanLongitude: 49.94432
+  drawDebugLines: 0
   debugColor: {r: 0.4607851, g: 1, b: 0.33333337, a: 1}
   enableAtDay: 0
   tubeRendererPrefab: {fileID: 136622, guid: 51a360197b0b63d4581dcacfb3c3f4cb, type: 3}
+  keplerianEllipseMaterial: {fileID: 2100000, guid: f656a64128463a440b490870da1c5cd7,
+    type: 2}
   drawMode: 3
 --- !u!135 &45946730
 SphereCollider:
@@ -346,13 +349,16 @@ MonoBehaviour:
   semiMajorAxis: 149.6
   eccentricity: 0.01671022
   inclination: 0
-  longitudeOfPerihelion: 102.94719
+  longitudeOfPerihelion: 102.9472
   longitudeOfAscendingNode: -11.26064
   orbitalPeriod: 5
-  meanLongitude: 100.46435
+  meanLongitude: 100.4643
+  drawDebugLines: 0
   debugColor: {r: 0, g: 0.645576, b: 1, a: 1}
   enableAtDay: 0
   tubeRendererPrefab: {fileID: 136622, guid: 51a360197b0b63d4581dcacfb3c3f4cb, type: 3}
+  keplerianEllipseMaterial: {fileID: 2100000, guid: f656a64128463a440b490870da1c5cd7,
+    type: 2}
   drawMode: 3
 --- !u!1 &109288624
 GameObject:
@@ -394,9 +400,12 @@ MonoBehaviour:
   longitudeOfAscendingNode: 131.7217
   orbitalPeriod: 823.86475
   meanLongitude: 304.88004
+  drawDebugLines: 0
   debugColor: {r: 0, g: 0.1692328, b: 0.9716981, a: 1}
   enableAtDay: 0
   tubeRendererPrefab: {fileID: 136622, guid: 51a360197b0b63d4581dcacfb3c3f4cb, type: 3}
+  keplerianEllipseMaterial: {fileID: 2100000, guid: f656a64128463a440b490870da1c5cd7,
+    type: 2}
   drawMode: 3
 --- !u!135 &109288626
 SphereCollider:
@@ -511,9 +520,12 @@ MonoBehaviour:
   longitudeOfAscendingNode: 76.68069
   orbitalPeriod: 3.0753582
   meanLongitude: 181.97974
+  drawDebugLines: 0
   debugColor: {r: 0.5582844, g: 1, b: 0, a: 1}
   enableAtDay: 0
   tubeRendererPrefab: {fileID: 136622, guid: 51a360197b0b63d4581dcacfb3c3f4cb, type: 3}
+  keplerianEllipseMaterial: {fileID: 2100000, guid: f656a64128463a440b490870da1c5cd7,
+    type: 2}
   drawMode: 3
 --- !u!135 &146226966
 SphereCollider:
@@ -812,10 +824,13 @@ MonoBehaviour:
   longitudeOfAscendingNode: 0
   orbitalPeriod: 30
   meanLongitude: 0
+  drawDebugLines: 0
   debugColor: {r: 1, g: 1, b: 1, a: 1}
   enableAtDay: 0
   tubeRendererPrefab: {fileID: 136622, guid: 51a360197b0b63d4581dcacfb3c3f4cb, type: 3}
-  drawMode: 3
+  keplerianEllipseMaterial: {fileID: 2100000, guid: f656a64128463a440b490870da1c5cd7,
+    type: 2}
+  drawMode: 4
 --- !u!1 &276818267
 GameObject:
   m_ObjectHideFlags: 0
@@ -997,9 +1012,12 @@ MonoBehaviour:
   longitudeOfAscendingNode: 110.30347
   orbitalPeriod: 1239.726
   meanLongitude: 238.9288
+  drawDebugLines: 0
   debugColor: {r: 1, g: 1, b: 1, a: 1}
   enableAtDay: 0
   tubeRendererPrefab: {fileID: 136622, guid: 51a360197b0b63d4581dcacfb3c3f4cb, type: 3}
+  keplerianEllipseMaterial: {fileID: 2100000, guid: f656a64128463a440b490870da1c5cd7,
+    type: 2}
   drawMode: 3
 --- !u!135 &501934189
 SphereCollider:
@@ -1295,7 +1313,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 10000
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -1825,9 +1843,12 @@ MonoBehaviour:
   longitudeOfAscendingNode: 0
   orbitalPeriod: 0.4017884
   meanLongitude: 0
+  drawDebugLines: 0
   debugColor: {r: 1, g: 1, b: 1, a: 1}
   enableAtDay: 0
   tubeRendererPrefab: {fileID: 136622, guid: 51a360197b0b63d4581dcacfb3c3f4cb, type: 3}
+  keplerianEllipseMaterial: {fileID: 2100000, guid: f656a64128463a440b490870da1c5cd7,
+    type: 2}
   drawMode: 3
 --- !u!135 &1638091968
 SphereCollider:
@@ -1942,9 +1963,12 @@ MonoBehaviour:
   longitudeOfAscendingNode: 74.22988
   orbitalPeriod: 420.09134
   meanLongitude: 313.23218
+  drawDebugLines: 0
   debugColor: {r: 1, g: 0.33333337, b: 0.88405865, a: 1}
   enableAtDay: 0
   tubeRendererPrefab: {fileID: 136622, guid: 51a360197b0b63d4581dcacfb3c3f4cb, type: 3}
+  keplerianEllipseMaterial: {fileID: 2100000, guid: f656a64128463a440b490870da1c5cd7,
+    type: 2}
   drawMode: 3
 --- !u!135 &1663822425
 SphereCollider:
@@ -2059,9 +2083,12 @@ MonoBehaviour:
   longitudeOfAscendingNode: 317.08
   orbitalPeriod: 7.625492
   meanLongitude: 183
+  drawDebugLines: 0
   debugColor: {r: 1, g: 0, b: 0, a: 1}
   enableAtDay: 6615
   tubeRendererPrefab: {fileID: 136622, guid: 51a360197b0b63d4581dcacfb3c3f4cb, type: 3}
+  keplerianEllipseMaterial: {fileID: 2100000, guid: f656a64128463a440b490870da1c5cd7,
+    type: 2}
   drawMode: 3
 --- !u!135 &1794314179
 SphereCollider:
@@ -2176,9 +2203,12 @@ MonoBehaviour:
   longitudeOfAscendingNode: 100.55615
   orbitalPeriod: 59.31121
   meanLongitude: 34.40438
+  drawDebugLines: 0
   debugColor: {r: 1, g: 0.7930388, b: 0.33490568, a: 1}
   enableAtDay: 0
   tubeRendererPrefab: {fileID: 136622, guid: 51a360197b0b63d4581dcacfb3c3f4cb, type: 3}
+  keplerianEllipseMaterial: {fileID: 2100000, guid: f656a64128463a440b490870da1c5cd7,
+    type: 2}
   drawMode: 3
 --- !u!135 &1914271805
 SphereCollider:
@@ -2293,9 +2323,12 @@ MonoBehaviour:
   longitudeOfAscendingNode: 48.33167
   orbitalPeriod: 1.2054795
   meanLongitude: 252.25084
+  drawDebugLines: 0
   debugColor: {r: 0.6320754, g: 0.6320754, b: 0.6320754, a: 1}
   enableAtDay: 0
   tubeRendererPrefab: {fileID: 136622, guid: 51a360197b0b63d4581dcacfb3c3f4cb, type: 3}
+  keplerianEllipseMaterial: {fileID: 2100000, guid: f656a64128463a440b490870da1c5cd7,
+    type: 2}
   drawMode: 3
 --- !u!135 &2030359345
 SphereCollider:
@@ -2478,9 +2511,12 @@ MonoBehaviour:
   longitudeOfAscendingNode: 49.57854
   orbitalPeriod: 9.404326
   meanLongitude: 355.4533
+  drawDebugLines: 0
   debugColor: {r: 1, g: 0.12787373, b: 0, a: 1}
   enableAtDay: 0
   tubeRendererPrefab: {fileID: 136622, guid: 51a360197b0b63d4581dcacfb3c3f4cb, type: 3}
+  keplerianEllipseMaterial: {fileID: 2100000, guid: f656a64128463a440b490870da1c5cd7,
+    type: 2}
   drawMode: 3
 --- !u!135 &2133958637
 SphereCollider:

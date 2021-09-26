@@ -41,10 +41,10 @@ public class OrbitalMechanics : MonoBehaviour
         float longitudeOfAscendingNode = 0f;
 
         float eccentricAnomaly = OrbitalBody.EccentricAnomalyGivenMeanAnomaly(earthAngleDegrees * -1f, earthEccentricity);
-        earth.transform.position = OrbitalBody.KeplerianPosition2D(eccentricAnomaly, earthSemiMajorAxis, earthEccentricity, argumentOfPeriapsis, inclination, longitudeOfAscendingNode);
+        earth.transform.position = OrbitalBody.KeplerianPosition(eccentricAnomaly, earthSemiMajorAxis, earthEccentricity, argumentOfPeriapsis, inclination, longitudeOfAscendingNode);
 
         eccentricAnomaly = OrbitalBody.EccentricAnomalyGivenMeanAnomaly(cometAngleDegrees * -1f, cometEccentricity);
-        comet.transform.position = OrbitalBody.KeplerianPosition2D(eccentricAnomaly, cometSemiMajorAxis, cometEccentricity, argumentOfPeriapsis, inclination, longitudeOfAscendingNode);
+        comet.transform.position = OrbitalBody.KeplerianPosition(eccentricAnomaly, cometSemiMajorAxis, cometEccentricity, argumentOfPeriapsis, inclination, longitudeOfAscendingNode);
 
         //float trueAnomaly = OrbitalBody.TrueAnomalyGivenEccentricAnomaly(eccentricAnomaly);
 

@@ -4,152 +4,243 @@ using UnityEngine;
 
 public class OrbitalBody : MonoBehaviour
 {
-    public GameObject orbitFocalPoint;
-    private OrbitalBody orbitFocalPointOB;
+    public GameObject orbitFocalPoint; // A GameObject representing the focal point of the orbit. May leave epty.
+    private OrbitalBody orbitFocalPointOB; // Internal reference to the OrbitalBody associated with the orbitalFocalPoint.
     public float semiMajorAxis = 1f; //http://www.met.rdg.ac.uk/~ross/Astronomy/Planets.html and http://www.unit-conversion.info/astronomical.html
     public float eccentricity = 0.0f;
-    public float inclination = 0f;
-    public float longitudeOfPerihelion = 0f;
-    public float longitudeOfAscendingNode = 0f;
-    public float orbitalPeriod = 60f;
-    public float meanLongitude = 0f;
+    public float inclination = 0f; // degrees
+    public float longitudeOfPerihelion = 0f; // degrees
+    public float longitudeOfAscendingNode = 0f; // degrees
+    public float orbitalPeriod = 60f; // orbitalPeriod in seconds. e.g. an orbitalPeriod of 10 will cause the body to go through a full year cycle in ten seconds.
+    public float meanLongitude = 0f; // degrees
     public bool drawDebugLines = false;
     public Color debugColor = Color.white;
-    public float enableAtDay = 0f;
-    private float argumentOfPeriapsis;
+    public float enableAtDay = 0f; // If you want an orbital body to be created during the simulation (e.g. with a satellite launch from Earth), set this to the number of days after J2000 where you want the object to appear.
+    private float argumentOfPeriapsis = 0f;
     private float timeElapsed = 0f;
     private const float interval = 1f / 40f;
     private Vector3 previousPosition;
     private bool previousPositionIsSet = false;
     private TubeRenderer tubeRenderer;
     public GameObject tubeRendererPrefab;
-
+    private GameObject keplerianEllipseGo;
+    public Material keplerianEllipseMaterial;
 
     public enum DrawMode
     {
         None,
         Velocity,
         Arrow,
-        Orbit
+        Orbit,
+        KeplerianEllipse
     }
     public DrawMode drawMode = DrawMode.None;
 
 
-    // Start is called before the first frame update
     void Start()
     {
         orbitFocalPointOB = orbitFocalPoint.GetComponent<OrbitalBody>();
 
         // argument of periapsis actually isn't argument of periapsis. It's longitude of periapsis. To get actual argument of periapsis, we do:
         //actualArgumentOfPeriapsis = argumentOfPeriapsis;
-        argumentOfPeriapsis =  longitudeOfPerihelion - longitudeOfAscendingNode;
+        argumentOfPeriapsis =  longitudeOfPerihelion - longitudeOfAscendingNode + 180f;
     }
 
 
-
-    // Update is called once per frame
     void Update()
     {
         float days = Time.time / 5f * Clock.earthDaysPerYear;
         if (days < enableAtDay)
             return;
 
-        float clockDegrees = ((Time.time + 5f * 0f) / orbitalPeriod * 360f + meanLongitude - longitudeOfPerihelion) % 360f;
-        float eccentricAnomaly = EccentricAnomalyGivenMeanAnomaly(clockDegrees, eccentricity);
+        //float clockDegrees = ((Time.time + 5f * 0f) / orbitalPeriod * 360f + meanLongitude - longitudeOfPerihelion) % 360f;
+        //float eccentricAnomaly = EccentricAnomalyGivenMeanAnomaly(clockDegrees, eccentricity);
 
         transform.position = CalculateCurrentPosition();
 
         switch (drawMode)
         {
             case DrawMode.Velocity:
-                if (!previousPositionIsSet)
                 {
-                    previousPosition = transform.position;
-                    previousPositionIsSet = true;
-                }
-                else
-                {
-                    timeElapsed += Time.deltaTime;
-                    if (timeElapsed > interval)
+                    if (!previousPositionIsSet)
                     {
-                        Debug.DrawLine(transform.position, transform.position + Vector3.right * 40f, debugColor, interval);
                         previousPosition = transform.position;
-                        timeElapsed = 0f;
+                        previousPositionIsSet = true;
+                    }
+                    else
+                    {
+                        timeElapsed += Time.deltaTime;
+                        if (timeElapsed > interval)
+                        {
+                            Debug.DrawLine(transform.position, transform.position + Vector3.right * 40f, debugColor, interval);
+                            previousPosition = transform.position;
+                            timeElapsed = 0f;
+                        }
                     }
                 }
                 break;
             case DrawMode.Arrow:
-                Debug.DrawLine(transform.position, transform.position + Vector3.right * 40f, debugColor);
-                Debug.DrawLine(transform.position, transform.position + Vector3.right * 4f + Vector3.up * 4f, debugColor);
-                Debug.DrawLine(transform.position, transform.position + Vector3.right * 4f + Vector3.down * 4f, debugColor);
+                {
+                    DrawArrowAt(transform.position);
+                }
                 break;
             case DrawMode.Orbit:
-                if (tubeRenderer == null)
                 {
-                    tubeRenderer = GameObject.Instantiate(tubeRendererPrefab).GetComponent<TubeRenderer>();
-                }
-
-                const int numSegments = 128;
-                Vector3 currentPosition = transform.position;
-                float currentTime = Time.time;
-                const float tubeRadius = 0.5f; 
-
-                tubeRenderer.Reset();
-                tubeRenderer.AppendPoint(currentPosition, tubeRadius, debugColor); // first vert gets full (non-transparent) color
-
-                for (int i = 1; i < numSegments; i++)
-                {
-                    float colorLerpValue = (numSegments - i - 1f) / numSegments;
-                    Color color = Color.Lerp(new Color(debugColor.r, debugColor.g, debugColor.b, 0f), new Color(debugColor.r, debugColor.g, debugColor.b, 1f), colorLerpValue);
-
-                    float nextTime = (Time.time + 5f * 0f) - i * (orbitalPeriod / numSegments);
-                    float nextMeanAnomaly = (nextTime / orbitalPeriod * 360f + meanLongitude - longitudeOfPerihelion) % 360f;
-                    float nextEccentricAnomaly = EccentricAnomalyGivenMeanAnomaly(nextMeanAnomaly, eccentricity);
-
-                    Vector3 nextFocalPointPosition = Vector3.zero;
-                    if (orbitFocalPointOB)
-                        nextFocalPointPosition = orbitFocalPointOB.CalculationPositionAt(nextTime);
-
-                    Vector3 nextPosition = nextFocalPointPosition + KeplerianPosition2D(nextEccentricAnomaly, semiMajorAxis, eccentricity, argumentOfPeriapsis, inclination, longitudeOfAscendingNode);
-                    const float maxRange = 5e4f;
-                    if (currentPosition.x < maxRange && currentPosition.y < maxRange && currentPosition.z < maxRange &&
-                       currentPosition.x > -maxRange && currentPosition.y > -maxRange && currentPosition.z > -maxRange &&
-                       nextPosition.x < maxRange && nextPosition.y < maxRange && nextPosition.z < maxRange &&
-                       nextPosition.x > -maxRange && nextPosition.y > -maxRange && nextPosition.z > -maxRange)
+                    if (tubeRenderer == null)
                     {
-                        if(drawDebugLines)
-                            Debug.DrawLine(currentPosition, nextPosition, color);
-
-                        tubeRenderer.AppendPoint(nextPosition, tubeRadius, color);
+                        tubeRenderer = GameObject.Instantiate(tubeRendererPrefab).GetComponent<TubeRenderer>();
                     }
-                    currentPosition = nextPosition;
+
+                    const int numSegments = 128;
+                    Vector3 currentPosition = transform.position;
+                    float currentTime = Time.time;
+                    const float tubeRadius = 1.5f;
+
+                    tubeRenderer.Reset();
+                    tubeRenderer.AppendPoint(currentPosition, tubeRadius, debugColor); // first vert gets full (non-transparent) color
+
+                    for (int i = 1; i < numSegments; i++)
+                    {
+                        float colorLerpValue = (numSegments - i - 1f) / numSegments;
+                        Color color = Color.Lerp(new Color(debugColor.r, debugColor.g, debugColor.b, 0f), new Color(debugColor.r, debugColor.g, debugColor.b, 1f), colorLerpValue);
+
+                        float nextTime = (Time.time + 5f * 0f) - i * (orbitalPeriod / numSegments);
+                        float nextMeanAnomaly = (nextTime / orbitalPeriod * 360f + meanLongitude - longitudeOfPerihelion) % 360f;
+                        float nextEccentricAnomaly = EccentricAnomalyGivenMeanAnomaly(nextMeanAnomaly, eccentricity);
+
+                        Vector3 nextFocalPointPosition = Vector3.zero;
+                        if (orbitFocalPointOB)
+                            nextFocalPointPosition = orbitFocalPointOB.CalculatePositionAt(nextTime);
+
+                        Vector3 nextPosition = nextFocalPointPosition + KeplerianPosition(nextEccentricAnomaly, semiMajorAxis, eccentricity, argumentOfPeriapsis, inclination, longitudeOfAscendingNode);
+                        const float maxRange = 5e4f;
+                        if (currentPosition.x < maxRange && currentPosition.y < maxRange && currentPosition.z < maxRange &&
+                           currentPosition.x > -maxRange && currentPosition.y > -maxRange && currentPosition.z > -maxRange &&
+                           nextPosition.x < maxRange && nextPosition.y < maxRange && nextPosition.z < maxRange &&
+                           nextPosition.x > -maxRange && nextPosition.y > -maxRange && nextPosition.z > -maxRange)
+                        {
+                            if (drawDebugLines)
+                                Debug.DrawLine(currentPosition, nextPosition, color);
+
+                            tubeRenderer.AppendPoint(nextPosition, tubeRadius, color);
+                        }
+                        currentPosition = nextPosition;
+                    }
+                    tubeRenderer.AppendPoint(transform.position, tubeRadius, new Color(debugColor.r, debugColor.g, debugColor.b, 0f)); // close the line
+                    tubeRenderer.Rebuild();
                 }
-                tubeRenderer.AppendPoint(transform.position, tubeRadius, new Color(debugColor.r, debugColor.g, debugColor.b, 0f)); // close the line
-                tubeRenderer.Rebuild();
+                break;
+            case DrawMode.KeplerianEllipse:
+                {
+                    /* The desire is to have the orbital body arc out an ellipse of equal areas, with the arcs expanding
+                       as the orbital body moves, until the full ellipse completes and the process starts over. 
+
+                       The ellipse should be divided in to n segmnets, where n is preferably an even number, and the
+                       colors of the arc segments alternate (e.g. black/white or transparent black/ opaque white).                   
+
+                       The ellipse should start at a common point -- likely the "slow" side of the orbit -- aka the apoapsis.
+                    */
+                    MeshFilter mf;
+                    MeshRenderer mr;
+                    if (keplerianEllipseGo == null)
+                    {
+                        keplerianEllipseGo = new GameObject();
+                        mf = keplerianEllipseGo.AddComponent<MeshFilter>();
+                        mr = keplerianEllipseGo.AddComponent<MeshRenderer>();
+                        mr.sharedMaterial = keplerianEllipseMaterial;
+                    }
+                    else
+                    {
+                        mf = keplerianEllipseGo.GetComponent<MeshFilter>();
+                        mr = keplerianEllipseGo.GetComponent<MeshRenderer>();
+                    }
+
+                    const int numArcSections = 16;
+                    const int numTrisPerSection = 10;
+                    Color blackTransparent = new Color(0f, 0f, 0f, 0f);
+                    Color whiteOpaque = new Color(1f, 1f, 1f, 1f);
+
+                    float timeAtApoapsis = Mathf.Floor(Time.time / orbitalPeriod) * orbitalPeriod + orbitalPeriod / 2f - (meanLongitude - longitudeOfPerihelion) / 360f * orbitalPeriod;  // half of an orbital period, minus the time required to reach meanLongitude
+                    Vector3 previousPosition = CalculatePositionAt(timeAtApoapsis);
+                    DrawArrowAt(previousPosition);
+
+                    Vector3[] vertices = new Vector3[3 * numArcSections * numTrisPerSection];
+                    int[] triangles = new int[3 * numArcSections * numTrisPerSection];
+                    Color[] colors = new Color[3 * numArcSections * numTrisPerSection];
+                    
+                    for (int i = 0; i < numArcSections; i++)
+                    {
+                        for (int j = 0; j < numTrisPerSection; j++)
+                        {
+                            float currentSectorTime = timeAtApoapsis + orbitalPeriod / (numArcSections * numTrisPerSection) * (i * numTrisPerSection + j + 1);
+                            Vector3 currentPosition = CalculatePositionAt(currentSectorTime);
+
+                            vertices[i * numTrisPerSection * 3 + j * 3 + 0] = currentPosition;
+                            vertices[i * numTrisPerSection * 3 + j * 3 + 1] = previousPosition;
+                            vertices[i * numTrisPerSection * 3 + j * 3 + 2] = orbitFocalPoint == null ? Vector3.zero : orbitFocalPoint.transform.position;
+
+                            triangles[i * numTrisPerSection * 3 + j * 3 + 0] = i * numTrisPerSection * 3 + j * 3 + 0;
+                            triangles[i * numTrisPerSection * 3 + j * 3 + 1] = i * numTrisPerSection * 3 + j * 3 + 1;
+                            triangles[i * numTrisPerSection * 3 + j * 3 + 2] = i * numTrisPerSection * 3 + j * 3 + 2;
+
+                            Color arcColor = i % 2 == 0 ? whiteOpaque : blackTransparent;
+                            colors[i * numTrisPerSection * 3 + j * 3 + 0] = arcColor;
+                            colors[i * numTrisPerSection * 3 + j * 3 + 1] = arcColor;
+                            colors[i * numTrisPerSection * 3 + j * 3 + 2] = arcColor;
+
+                            previousPosition = currentPosition;
+                        }
+                    }
+
+                    Mesh mesh = mf.mesh;
+                    mesh.vertices = vertices;
+                    mesh.triangles = triangles;
+                    mesh.colors = colors;
+                    mesh.RecalculateNormals();
+                }
                 break;
             case DrawMode.None:
+                {
+                    if (tubeRenderer != null)
+                    {
+                        Destroy(tubeRenderer.gameObject);
+                        tubeRenderer = null;
+                    }
+                }
+                break;
             default:
                 break;
         }
     }
 
 
-    private Vector3 CalculateCurrentPosition()
+    // General purpose routine for drawing a debug arrow.
+    private void DrawArrowAt(Vector3 position)
     {
-        return CalculationPositionAt(Time.time + 5f * 0f);
+        Debug.DrawLine(position, position + Vector3.right * 40f, debugColor);
+        Debug.DrawLine(position, position + Vector3.right * 4f + Vector3.up * 4f, debugColor);
+        Debug.DrawLine(position, position + Vector3.right * 4f + Vector3.down * 4f, debugColor);
     }
 
 
-    private Vector3 CalculationPositionAt(float time)
+    // Calculate the position of the orbital body at the current time.
+    private Vector3 CalculateCurrentPosition()
+    {
+        return CalculatePositionAt(Time.time + 5f * 0f);
+    }
+
+
+    // Calcualte the position of the orbital body at the provided time.
+    private Vector3 CalculatePositionAt(float time)
     {
         float meanAnomaly = ((time / orbitalPeriod) * 360f + meanLongitude - longitudeOfPerihelion) % 360f;
         Vector3 pos = Vector3.zero;
         if (orbitFocalPointOB)
         {
-            pos = orbitFocalPointOB.CalculationPositionAt(time);
+            pos = orbitFocalPointOB.CalculatePositionAt(time);
         }
         float eccentricAnomaly = EccentricAnomalyGivenMeanAnomaly(meanAnomaly, eccentricity);
-        pos += KeplerianPosition2D(eccentricAnomaly, semiMajorAxis, eccentricity, argumentOfPeriapsis, inclination, longitudeOfAscendingNode);
+        pos += KeplerianPosition(eccentricAnomaly, semiMajorAxis, eccentricity, argumentOfPeriapsis, inclination, longitudeOfAscendingNode);
         return pos;
     }
 
@@ -168,6 +259,7 @@ public class OrbitalBody : MonoBehaviour
     //}
 
 
+    // Convert from eccentric anomaly to true anomaly.
     // Taken from https://en.wikipedia.org/wiki/True_anomaly
     public static float TrueAnomalyGivenEccentricAnomaly(float eccentricAnomaly, float eccentricity)
     {
@@ -179,6 +271,7 @@ public class OrbitalBody : MonoBehaviour
     }
 
 
+    // Convert from true anomaly to eccentric anomaly.
     public static float EccentricAnomalyGivenTrueAnomaly(float trueAnomaly, float eccentricity)
     {
         /*
@@ -195,6 +288,7 @@ public class OrbitalBody : MonoBehaviour
     }
 
 
+    // Compute the radius given eccentric anomaly.
     public static float RadiusGivenEccentricAnomaly(float eccentricAnomaly, float semiMajorAxis, float eccentricity)
     {
         //float semiMajorAxis = 6f;
@@ -204,6 +298,7 @@ public class OrbitalBody : MonoBehaviour
     }
 
 
+    // Compute the radius given the true anomaly.
     public static float RadiusGivenTrueAnomaly(float trueAnomaly, float semiMajorAxis, float eccentricity)
     {
         /* theta is also called true anomaly, which is the angle between
@@ -216,8 +311,8 @@ public class OrbitalBody : MonoBehaviour
     }
 
 
-
-    public static Vector3 KeplerianPosition2D(float eccentricAnomaly, float semiMajorAxis, float eccentricity, float argumentOfPeriapsis, float inclination, float longitudeOfAscendingNode)
+    // Calculate the Keplerian position of an object.
+    public static Vector3 KeplerianPosition(float eccentricAnomaly, float semiMajorAxis, float eccentricity, float argumentOfPeriapsis, float inclination, float longitudeOfAscendingNode)
     {
         // +P is axis towards periapsis
         // Q is orthogonal to P
@@ -230,7 +325,6 @@ public class OrbitalBody : MonoBehaviour
 
         //return new Vector3(P, 0f, Q);
         // rotate by argument of periapsis
-
         float x = Mathf.Cos(argumentOfPeriapsis * Mathf.Deg2Rad) * P - Mathf.Sin(argumentOfPeriapsis * Mathf.Deg2Rad) * Q;
         float y = Mathf.Sin(argumentOfPeriapsis * Mathf.Deg2Rad) * P + Mathf.Cos(argumentOfPeriapsis * Mathf.Deg2Rad) * Q;
         // rotate by inclination
@@ -240,11 +334,11 @@ public class OrbitalBody : MonoBehaviour
         float xtemp = x;
         x = Mathf.Cos(longitudeOfAscendingNode * Mathf.Deg2Rad) * xtemp - Mathf.Sin(longitudeOfAscendingNode * Mathf.Deg2Rad) * y;
         y = Mathf.Sin(longitudeOfAscendingNode * Mathf.Deg2Rad) * xtemp + Mathf.Cos(longitudeOfAscendingNode * Mathf.Deg2Rad) * y;
-
         return new Vector3(x, z, y);
     }
 
 
+    // Convert mean anomaly to eccentric anomaly.
     public static float EccentricAnomalyGivenMeanAnomaly(float meanAnomaly, float eccentricity)
     {
         //float eccentricity = 0.5f;
@@ -307,6 +401,7 @@ public class OrbitalBody : MonoBehaviour
     */
 
 
+    // Calculate the velocity of the orbital body at a particular eccentric anomaly.
     public static void OrbitalVelocityGivenEccentricAnomaly(float eccentricAnomaly, float semiMajorAxis, float eccentricity)
     {
         float Ldot = 1f;
